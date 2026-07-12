@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quote Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      padding: 50px 20px;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .quote-box {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 40px 30px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+    .quote-box:hover {
+      transform: translateY(-5px);
+    }
+
+    .quote {
+      font-size: 1.4rem;
+      font-style: italic;
+      min-height: 140px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .quote.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .author {
+      font-size: 1.1rem;
+      margin: 15px 0;
+      opacity: 0.9;
+      transition: all 0.5s ease;
+    }
+
+    button {
+      background: white;
+      color: #667eea;
+      border: none;
+      padding: 16px 36px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:active {
+      transform: scale(0.92);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button:active::after {
+      width: 300px;
+      height: 300px;
+    }
+
+    .loading {
+      opacity: 0.6;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💡 Random Quote Generator</h1>
+    <div class="quote-box">
+      <div id="quote" class="quote">"Click below to get inspired!"</div>
+      <div id="author" class="author">- Your Daily Dose</div>
+      <button id="newQuoteBtn">New Quote ✨</button>
+    </div>
+  </div>
+
+  <script>
+    const quoteEl = document.getElementById('quote');
+    const authorEl = document.getElementById('author');
+    const button = document.getElementById('newQuoteBtn');
+
+    async function getQuote() {
+      // Button animation
+      button.style.pointerEvents = 'none';
+      button.textContent = 'Fetching...';
+
+      quoteEl.classList.remove('show');
+
+      try {
+        const res = await fetch('https://api.quotable.io/random');
+        const data = await res.json();
+
+        // Update content
+        quoteEl.textContent = `"${data.content}"`;
+        authorEl.textContent = `- ${data.author}`;
+
+        // Trigger animation after a tiny delay
+        setTimeout(() => {
+          quoteEl.classList.add('show');
+        }, 50);
+
+      } catch (error) {
+        quoteEl.textContent = "Failed to load quote. Please try again.";
+        authorEl.textContent = "";
+        quoteEl.classList.add('show');
+      } finally {
+        // Reset button
+        setTimeout(() => {
+          button.textContent = 'New Quote ✨';
+          button.style.pointerEvents = 'auto';
+        }, 600);
+      }
+    }
+
+    // Button click handler
+    button.addEventListener('click', getQuote);
+
+    // Load first quote on page load
+    window.onload = getQuote;
+  </script>
+</body>
+</html>
